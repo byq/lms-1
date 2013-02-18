@@ -23,9 +23,7 @@
 
 $DB->BeginTrans();
 
-$DB->Execute('DELETE FROM monitnodes WHERE id = ? ;',array('0'));
-
-$DB->Execute("UPDATE dbinfo SET keyvalue = ? WHERE keytype = ?", array('2013021000', 'dbvex'));
+$DB->Execute("UPDATE dbinfo SET keyvalue = ? WHERE keytype = ?", array('2013021201', 'dbvex'));
 
 $DB->CommitTrans();
 ?>
