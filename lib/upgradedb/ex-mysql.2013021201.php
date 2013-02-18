@@ -23,9 +23,17 @@
 
 $DB->BeginTrans();
 
-$DB->Execute('DELETE FROM monitnodes WHERE id = ? ;',array('0'));
+if (!$tmp = $DB->GetOne("SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = ? AND COLUMN_NAME = ? ;",array($DB->_dbname,'monit_port'))) 
+{
+    $DB->Execute("ALTER TABLE netdevices ADD monit_port VARCHAR(5) DEFAULT NULL;");
+}
+else
+{
+    $DB->Execute("ALTER TABLE netdevices CHANGE monit_port monit_port VARCHAR( 5 ) NULL DEFAULT NULL ;");
+    $DB->Execute("UPDATE netdevices SET monit_port = NULL WHERE monit_port = '8728' OR monit_port = '0';");
+}
 
-$DB->Execute("UPDATE dbinfo SET keyvalue = ? WHERE keytype = ?", array('2013021000', 'dbvex'));
+$DB->Execute("UPDATE dbinfo SET keyvalue = ? WHERE keytype = ?", array('2013021201', 'dbvex'));
 
 $DB->CommitTrans();
 ?>
