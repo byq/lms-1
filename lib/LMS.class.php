@@ -2950,7 +2950,11 @@ class LMS {
 		$sdate = $invoice['invoice']['sdate'] ? $invoice['invoice']['sdate'] : $currtime;
 		$number = $invoice['invoice']['number'];
 		$type = $invoice['invoice']['type'];
-		
+
+if($invoice['customer']['invoice_name'] == '')
+{
+#      dane do faktury brane z glownego adresu
+	
 		$this->DB->Execute('INSERT INTO documents (number, numberplanid, type,
 			cdate, sdate, paytime, paytype, userid, customerid, name, address, 
 			ten, ssn, zip, city, countryid, divisionid)
@@ -2973,6 +2977,32 @@ class LMS {
 				$invoice['customer']['divisionid'],
 		));
 
+}
+else
+{
+# dane do faktury brane z odbiorcy faktury
+		$this->DB->Execute('INSERT INTO documents (number, numberplanid, type,
+			cdate, sdate, paytime, paytype, userid, customerid, name, address, 
+			ten, ssn, zip, city, countryid, divisionid)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array($number,
+				$invoice['invoice']['numberplanid'] ? $invoice['invoice']['numberplanid'] : 0,
+				$type,
+				$cdate,
+				$sdate,
+				$invoice['invoice']['paytime'],
+				$invoice['invoice']['paytype'],
+				$this->AUTH->id,
+				$invoice['customer']['id'],
+				$invoice['customer']['invoice_name'],
+				$invoice['customer']['invoice_address'],
+				$invoice['customer']['invoice_ten'],
+				$invoice['customer']['ssn'],
+				$invoice['customer']['invoice_zip'],
+				$invoice['customer']['invoice_city'],
+				$invoice['customer']['invoice_countryid'],
+				$invoice['customer']['divisionid'],
+		));
+}
 		$iid = $this->DB->GetLastInsertID('documents');
 
 		$itemid = 0;
