@@ -224,6 +224,9 @@ switch($action)
 
 		$DB->BeginTrans();
 
+if($invoice['customer']['invoice_name'] == '')
+{
+#      dane do faktury brane z glownego adresu
 		$DB->Execute('UPDATE documents SET cdate = ?, sdate = ?, paytime = ?, paytype = ?, customerid = ?,
 				name = ?, address = ?, ten = ?, ssn = ?, zip = ?, city = ?, divisionid = ?
 				WHERE id = ?',
@@ -241,7 +244,28 @@ switch($action)
 					$customer['divisionid'],
 					$iid
 				));
-
+}
+else
+{
+# dane do faktury brane z odbiorcy faktury
+		$DB->Execute('UPDATE documents SET cdate = ?, sdate = ?, paytime = ?, paytype = ?, customerid = ?,
+				name = ?, address = ?, ten = ?, ssn = ?, zip = ?, city = ?, divisionid = ?
+				WHERE id = ?',
+				array($cdate,
+					$sdate,
+					$invoice['paytime'],
+					$invoice['paytype'],
+					$customer['id'],
+					$customer['invoice_name'],
+					$customer['invoice_address'],
+					$customer['invoice_ten'],
+					$customer['ssn'],
+					$customer['invoice_zip'],
+					$customer['invoice_city'],
+					$customer['divisionid'],
+					$iid
+				));
+}
 		if (!$invoice['closed']) {
 			$DB->Execute('DELETE FROM invoicecontents WHERE docid = ?', array($iid));
 			$DB->Execute('DELETE FROM cash WHERE docid = ?', array($iid));

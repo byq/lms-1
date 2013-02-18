@@ -482,17 +482,32 @@ foreach($assigns as $assign)
 				$itemid = 0;
 				$numbers[$plan]++;
 
-				$customer = $DB->GetRow("SELECT lastname, name, address, city, zip, ssn, ten, countryid, divisionid, paytime 
+				$customer = $DB->GetRow("SELECT lastname, name, address, city, zip, ssn, ten, countryid, divisionid, paytime, 
+						invoice_name, invoice_address, invoice_city, invoice_zip, invoice_ten, invoice_countryid
 						FROM customers WHERE id = $cid");
 				$paytime = $customer['paytime'];
 				if ($paytime == -1) $paytime = $deadline;
 
+if($invoice['customer']['invoice_name'] == '')
+{
+#      dane do faktury brane z glownego adresu
 				$DB->Execute("INSERT INTO documents (number, numberplanid, type, countryid, divisionid, 
 					customerid, name, address, zip, city, ten, ssn, cdate, sdate, paytime, paytype) 
 					VALUES(?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 					array($numbers[$plan], $plan, $customer['countryid'], $customer['divisionid'], $cid,
 					$customer['lastname']." ".$customer['name'], $customer['address'], $customer['zip'],
 					$customer['city'], $customer['ten'], $customer['ssn'], $currtime, $saledate, $paytime, $inv_paytype));
+}
+else
+{
+# dane do faktury brane z odbiorcy faktury
+				$DB->Execute("INSERT INTO documents (number, numberplanid, type, countryid, divisionid, 
+					customerid, name, address, zip, city, ten, ssn, cdate, sdate, paytime, paytype) 
+					VALUES(?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+					array($numbers[$plan], $plan, $customer['invoice_countryid'], $customer['divisionid'], $cid,
+					$customer['invoice_name'], $customer['invoice_address'], $customer['invoice_zip'],
+					$customer['invoice_city'], $customer['invoice_ten'], $customer['ssn'], $currtime, $saledate, $paytime, $inv_paytype));
+}
 
 				$invoices[$cid] = $DB->GetLastInsertID("documents");
 				$paytypes[$cid] = $inv_paytype;
